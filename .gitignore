@@ -1,0 +1,5 @@
+.session
+.ipynb_checkpoints
+*pth
+output/
+__pycache__
