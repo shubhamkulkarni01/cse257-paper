@@ -7,7 +7,7 @@ import gym
 from stable_baselines3.common import logger
 
 class M_DQN(sb.DQN):
-    def train(self, gradient_steps: int, batch_size: int = 100, entropy_tau = 0.03, alpha=0.9, lo=-1) -> None:
+    def train(self, gradient_steps: int, batch_size: int = 100, entropy_tau = 0.50, alpha=0.9, lo=-1) -> None:
         # Update learning rate according to schedule
         self._update_learning_rate(self.policy.optimizer)
 
@@ -61,15 +61,23 @@ class M_DQN(sb.DQN):
         logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         logger.record("train/loss", np.mean(losses))
 
+
+print('Starting training...')
 env = gym.make('CartPole-v1')
 model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
-        buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 8000, max_grad_norm=1,
-        train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
+        buffer_size = 12000, tau=1, batch_size=256, target_update_interval = 8000, max_grad_norm=1, 
+        # exploration_fraction = 0.3,
+        train_freq=1, learning_starts=3000, policy_kwargs={'net_arch': [256, 256]})
+
+# model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+#                 buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 10000, max_grad_norm=1,
+#                 train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
 model.learn(total_timesteps=100000, tb_log_name = "M_DQN", log_interval = 5)
-model.save(f'output/{env.spec.id}-mdqn')
+model.save(f'output/{env.spec.id}-mdqn-1')
 
-model.load(f'output/{env.spec.id}-mdqn')
+print('Starting evaluation...')
+# model.load(f'output/{env.spec.id}-mdqn')
 for _ in range(3):
     obs = env.reset()
     env.render()
