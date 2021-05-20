@@ -6,6 +6,8 @@ import stable_baselines3 as sb
 import gym
 from stable_baselines3.common import logger
 
+from utils import ENV
+
 class M_DQN(sb.DQN):
     def train(self, gradient_steps: int, batch_size: int = 100, entropy_tau = 0.03, alpha=0.9, lo=-1) -> None:
         # Update learning rate according to schedule
@@ -63,33 +65,34 @@ class M_DQN(sb.DQN):
 
 
 print('Starting training...')
-env = gym.make('CartPole-v1')
+env = gym.make(ENV)
 env.seed(0)
 sb.common.utils.set_random_seed(0)
 
-model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
-            buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 8000, max_grad_norm=1,
-            exploration_fraction = 0.3,
-            train_freq=1, learning_starts=3000, policy_kwargs={'net_arch': [256, 256]})
+# model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+#             learning_rate = lambda x: x * 1e-3 + (1-x) * 3e-4,
+#             buffer_size = 16000, tau=1.0, batch_size=256, target_update_interval = 8000, max_grad_norm=1,
+#             exploration_fraction = 0.3,
+#             train_freq=1, learning_starts=10000, policy_kwargs={'net_arch': [256, 256]})
 
 # model that beats DQN at least once :)))
-# model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
-#             buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 10000, max_grad_norm=1,
-#             train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
-# 
+model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+            buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 10000, max_grad_norm=1,
+            train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
 model.learn(total_timesteps=100000, tb_log_name = "M_DQN", log_interval = 5)
-model.save(f'output/{env.spec.id}-mdqn-1')
+model.save(f'output/{env.spec.id}-mdqn')
 
 print('Starting evaluation...')
 model = M_DQN.load(f'output/{env.spec.id}-mdqn')
+
 for _ in range(3):
     obs = env.reset()
     env.render()
     done = False
     G = 0
     while not done:
-        action, _states = model.predict(obs)
+        action, _states = model.predict(obs, deterministic = True)
         obs, r, done, info = env.step(action)
         G += r
         env.render()

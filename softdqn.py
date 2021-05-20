@@ -6,6 +6,8 @@ import stable_baselines3 as sb
 import gym
 from stable_baselines3.common import logger
 
+from utils import ENV
+
 class SoftDQN(sb.DQN):
     def train(self, gradient_steps: int, batch_size: int = 100, entropy_tau = 0.03) -> None:
         # Update learning rate according to schedule
@@ -52,7 +54,8 @@ class SoftDQN(sb.DQN):
         logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         logger.record("train/loss", np.mean(losses))
 
-env = gym.make('CartPole-v1')
+print('Starting training...')
+env = gym.make(ENV)
 env.seed(0)
 sb.common.utils.set_random_seed(0)
 
@@ -60,19 +63,19 @@ model = SoftDQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.
         buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 8000, max_grad_norm=1,
         train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
-# model = SoftDQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/')
-
 model.learn(total_timesteps=100000, tb_log_name = "SoftDQN", log_interval = 5)
 model.save(f'output/{env.spec.id}-softdqn')
 
-model.load(f'output/{env.spec.id}-softdqn')
+print('Starting evaluation...')
+model = SoftDQN.load(f'output/{env.spec.id}-softdqn')
+
 for _ in range(3):
     obs = env.reset()
     env.render()
     done = False
     G = 0
     while not done:
-        action, _states = model.predict(obs)
+        action, _states = model.predict(obs, deterministic = True)
         obs, r, done, info = env.step(action)
         G += r
         env.render()

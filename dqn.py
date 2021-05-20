@@ -1,6 +1,8 @@
 import gym
 import stable_baselines3 as sb
 
+from utils import ENV
+
 class DQN(sb.DQN):
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Update learning rate according to schedule
@@ -42,18 +44,20 @@ class DQN(sb.DQN):
         logger.record("train/loss", np.mean(losses))
 
 
-env = gym.make('CartPole-v1')
+print('Starting training...')
+env = gym.make(ENV)
 env.seed(0)
 sb.common.utils.set_random_seed(0)
+
 model = sb.DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
             buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 10000, max_grad_norm=1,
             train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
-model.learn(total_timesteps=100000, tb_log_name = "DQN", log_interval = 5)
-
+model.learn(total_timesteps=100000, log_interval = 5)
 model.save(f'output/{env.spec.id}-dqn')
 
-model.load(f'output/{env.spec.id}-dqn')
+print('Starting evaluation...')
+model = DQN.load(f'output/{env.spec.id}-dqn')
 
 for _ in range(3):
     obs = env.reset()
@@ -61,7 +65,7 @@ for _ in range(3):
     done = False
     G = 0
     while not done:
-        action, _states = model.predict(obs)
+        action, _states = model.predict(obs, deterministic = True)
         obs, r, done, info = env.step(action)
         G += r
         env.render()
