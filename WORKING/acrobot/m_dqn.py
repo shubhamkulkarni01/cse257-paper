@@ -66,8 +66,8 @@ class M_DQN(sb.DQN):
 
 print('Starting training...')
 env = gym.make(ENV)
-env.seed(0)
-sb.common.utils.set_random_seed(0)
+env.seed(1)
+sb.common.utils.set_random_seed(1)
 
 model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
             learning_rate = lambda x: x * 1e-3 + (1-x) * 6e-4,
@@ -86,14 +86,17 @@ model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id
 print('Starting evaluation...')
 model = M_DQN.load(f'output/{env.spec.id}-mdqn-1')
 
-for _ in range(3):
+G = []
+for _ in range(30):
     obs = env.reset()
-    env.render()
+    # env.render()
     done = False
-    G = 0
+    cur = 0
     while not done:
-        action, _states = model.predict(obs, deterministic = False)
+        action, _states = model.predict(obs)
         obs, r, done, info = env.step(action)
-        G += r
-        env.render()
-    print(G)
+        cur += r
+        # env.render()
+    G.append(cur)
+    print(cur)
+print(sum(G) / len(G))
