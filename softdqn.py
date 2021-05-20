@@ -63,8 +63,8 @@ model = SoftDQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.
         buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 8000, max_grad_norm=1,
         train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
-# model.learn(total_timesteps=100000, tb_log_name = "SoftDQN", log_interval = 5)
-# model.save(f'output/{env.spec.id}-softdqn')
+model.learn(total_timesteps=1000000, tb_log_name = "SoftDQN", log_interval = 5)
+model.save(f'output/{env.spec.id}-softdqn')
 
 print('Starting evaluation...')
 model = SoftDQN.load(f'output/{env.spec.id}-softdqn')

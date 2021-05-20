@@ -1,1 +1,1 @@
-ENV = 'Acrobot-v1'
+ENV = 'MountainCar-v0'
