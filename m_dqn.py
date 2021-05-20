@@ -70,9 +70,9 @@ env.seed(0)
 sb.common.utils.set_random_seed(1)
 
 model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
-            learning_rate = lambda x: 4e-3,
+            learning_rate = lambda x: x * 4e-3 + (1-x) * 1e-3 if x > 0.55 else 0,
             buffer_size = 50000, tau=1.0, batch_size=256, target_update_interval = 4000, max_grad_norm=1.0,
-            train_freq = 16, gradient_steps = 8,
+            train_freq = 2, gradient_steps = 1,
             exploration_fraction = 0.3, exploration_final_eps = 0.08,
             learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
