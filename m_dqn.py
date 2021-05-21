@@ -70,7 +70,7 @@ env.seed(0)
 sb.common.utils.set_random_seed(1)
 
 model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
-            learning_rate = lambda x: x * 4e-3 + (1-x) * 1e-3 if x > 0.55 else 1e-9,
+            learning_rate = lambda x: x * 4e-3 + (1-x) * 1e-3 if x > 0.55 else 1e-8,
             buffer_size = 50000, tau=1.0, batch_size=256, target_update_interval = 4000, max_grad_norm=1.0,
             train_freq = 2, gradient_steps = 1,
             exploration_fraction = 0.3, exploration_final_eps = 0.08,
@@ -82,10 +82,10 @@ model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id
 #             train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
 model.learn(total_timesteps=1000000, tb_log_name = "M_DQN", log_interval = 5)
-model.save(f'output/{env.spec.id}-mdqn-1')
+model.save(f'output/{env.spec.id}-mdqn-2')
 
 print('Starting evaluation...')
-model = M_DQN.load(f'output/{env.spec.id}-mdqn')
+model = M_DQN.load(f'output/{env.spec.id}-mdqn-2')
 
 G = []
 for _ in range(30):
