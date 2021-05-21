@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bioactivity-transfer-learning-train-2
+  labels:
+    bioactivity: train
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: clone-repo
+        image: alpine
+        resources:
+          limits:
+            memory: 4Gi
+            cpu: 1
+            nvidia.com/gpu: 1
+          requests:
+            memory: 4Gi
+            cpu: 1
+            nvidia.com/gpu: 1
+        command: ["/bin/ash", "-c"]
+        args: 
+            ["apk add git && \
+              cd /opt/repo && \
+              git clone https://github.com/shubhamkulkarni01/cse257-paper.git"]
+        volumeMounts:
+        - mountPath: /opt/repo
+          name: gitrepo
+      containers:
+      - name: train-model
+        # image: stablebaselines/rl-baselines3-zoo
+        image: pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime
+        resources:
+          limits:
+            memory: 8Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+          requests:
+            memory: 8Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+        command: ["sh", "-c", "sleep infinity"]
+        # command: ["/bin/bash", "-c"]
+        # args: ["cd /opt/repo/cse257-paper && tensorboard --logdir . --bind_all"]
+        volumeMounts:
+        - mountPath: /opt/repo
+          name: gitrepo
+      volumes:
+        - name: gitrepo
+          emptyDir: {}
+      restartPolicy: Never
+  backoffLimit: 7
