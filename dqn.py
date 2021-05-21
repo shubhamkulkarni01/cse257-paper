@@ -49,11 +49,11 @@ env = gym.make(ENV)
 env.seed(1)
 sb.common.utils.set_random_seed(1)
 
-model = sb.DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+model = sb.DQN("MlpPolicy", env, verbose=0,  tensorboard_log=f'output/{env.spec.id}/', 
             buffer_size = 16000, tau=1, batch_size=256, target_update_interval = 10000, max_grad_norm=1,
             train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
-model.learn(total_timesteps=100000, log_interval = 5)
+model.learn(total_timesteps=1000000, log_interval = 5)
 model.save(f'output/{env.spec.id}-dqn')
 
 print('Starting evaluation...')

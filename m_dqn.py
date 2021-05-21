@@ -82,10 +82,10 @@ model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id
 #             train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
 model.learn(total_timesteps=1000000, tb_log_name = "M_DQN", log_interval = 5)
-model.save(f'output/{env.spec.id}-mdqn-2')
+model.save(f'output/{env.spec.id}-mdqn')
 
 print('Starting evaluation...')
-model = M_DQN.load(f'output/{env.spec.id}-mdqn-2')
+model = M_DQN.load(f'output/{env.spec.id}-mdqn')
 
 G = []
 for _ in range(30):

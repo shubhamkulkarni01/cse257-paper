@@ -1,1 +1,1 @@
-ENV = 'Pong-ramNoFrameskip-v4'
+ENV = 'Pong-ramDeterministic-v4'
