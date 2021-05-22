@@ -76,8 +76,8 @@ model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/
         # policy_kwargs={'net_arch': [256, 256]}
         )
 
-model.learn(total_timesteps=100000, log_interval = 5)
-model.save(f'output/{env.spec.id}-a2c')
+# model.learn(total_timesteps=100000, log_interval = 5)
+# model.save(f'output/{env.spec.id}-a2c')
 
 print('Starting evaluation...')
 model = A2C.load(f'output/{env.spec.id}-a2c')
