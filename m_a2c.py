@@ -73,8 +73,8 @@ sb.common.utils.set_random_seed(1)
 
 model = M_A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
         # use_rms_prop = False, 
-        learning_rate = lambda x: 3e-3 * x + (1-x) * 1e-3,
-        n_steps=9, 
+        # learning_rate = lambda x: 3e-3 * x + (1-x) * 1e-3,
+        n_steps=8, 
         # gae_lambda = 0, 
         # max_grad_norm=1,
         # policy_kwargs={'net_arch': [256, 256]} 
