@@ -7,8 +7,8 @@ from utils import ENV
 import torch
 from torch.nn import functional as F
 
-class A2C(sb.A2C):
-    def train(self, entropy_tau = 0.03, alpha = 0.9, lo=-1) -> None:
+class M_A2C(sb.A2C):
+    def train(self, entropy_tau = -1.00, munchausen_alpha = 0.0, lo=-1) -> None:
         """
         Update policy using torche currently gatorchered
         rollout buffer (one gradient step over whole data).
@@ -36,8 +36,12 @@ class A2C(sb.A2C):
             # Policy gradient loss
             policy_loss = -(advantages * log_prob).mean()
 
+            next_state_entropy = entropy_tau * self.gamma * self.policy.evaluate_actions(torch.from_numpy(self._last_obs), torch.empty(0))[-1].detach()
+            munchausen_clipped = munchausen_alpha * log_prob.clip(min=lo, max=0).detach()
+            target_values = rollout_data.returns + munchausen_clipped + next_state_entropy
+
             # Value loss using torche TD(gae_lambda) target
-            value_loss = F.mse_loss(rollout_data.returns, values)
+            value_loss = F.mse_loss(target_values, values)
 
             # Entropy loss favor exploration
             if entropy is None:
@@ -67,7 +71,7 @@ env = gym.make(ENV)
 env.seed(1)
 sb.common.utils.set_random_seed(1)
 
-model = A2C("MlpPolicy", env, verbose=0, 
+model = M_A2C("MlpPolicy", env, verbose=0, 
         use_rms_prop = False, 
         learning_rate = 5e-4,
         n_steps=5, 
@@ -77,7 +81,7 @@ model = A2C("MlpPolicy", env, verbose=0,
         policy_kwargs={'net_arch': [256, 256]}
         )
 
-model.learn(total_timesteps=100000, log_interval = 5)
+model.learn(total_timesteps=100000, tb_log_name = "M_A2C", log_interval = 5, )
 # model.save(f'output/{env.spec.id}-dqn')
 
 print('Starting evaluation...')
