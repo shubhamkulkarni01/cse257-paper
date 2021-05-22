@@ -67,14 +67,13 @@ env = gym.make(ENV)
 env.seed(1)
 sb.common.utils.set_random_seed(1)
 
-model = A2C("MlpPolicy", env, verbose=0, 
-        use_rms_prop = False, 
-        learning_rate = 5e-4,
-        n_steps=5, 
-        gae_lambda = 0, 
-        tensorboard_log=f'output/{env.spec.id}/', 
-        max_grad_norm=1,
-        policy_kwargs={'net_arch': [256, 256]}
+model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+        # use_rms_prop = False, 
+        # learning_rate = 5e-4,
+        n_steps=8, 
+        # gae_lambda = 0, 
+        # max_grad_norm=1,
+        # policy_kwargs={'net_arch': [256, 256]}
         )
 
 model.learn(total_timesteps=100000, log_interval = 5)

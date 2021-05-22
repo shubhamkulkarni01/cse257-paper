@@ -8,7 +8,7 @@ import torch
 from torch.nn import functional as F
 
 class M_A2C(sb.A2C):
-    def train(self, entropy_tau = 1e-5, munchausen_alpha = 1e-3, lo=-1) -> None:
+    def train(self, entropy_tau = 1e-8, munchausen_alpha = 1e-8, lo=-1) -> None:
         """
         Update policy using torche currently gatorchered
         rollout buffer (one gradient step over whole data).
@@ -71,15 +71,13 @@ env = gym.make(ENV)
 env.seed(1)
 sb.common.utils.set_random_seed(1)
 
-model = M_A2C("MlpPolicy", env, verbose=0, 
-        use_rms_prop = False, 
-        learning_rate = lambda x: 3e-3 * x + (1-x) * 1e-4,
-        n_steps=7, 
-        gae_lambda = 0, 
-        # normalize_advantage=True,
-        tensorboard_log=f'output/{env.spec.id}/', 
-        max_grad_norm=1,
-        policy_kwargs={'net_arch': [256, 256]} # 'optimizer_class': torch.optim.Adadelta}
+model = M_A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+        # use_rms_prop = False, 
+        learning_rate = lambda x: 3e-3 * x + (1-x) * 1e-3,
+        n_steps=9, 
+        # gae_lambda = 0, 
+        # max_grad_norm=1,
+        # policy_kwargs={'net_arch': [256, 256]} 
         )
 
 model.learn(total_timesteps=100000, tb_log_name = "M_A2C", log_interval = 5, )
