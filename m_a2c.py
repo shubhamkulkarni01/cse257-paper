@@ -8,7 +8,7 @@ import torch
 from torch.nn import functional as F
 
 class M_A2C(sb.A2C):
-    def train(self, entropy_tau = -1.00, munchausen_alpha = 0.0, lo=-1) -> None:
+    def train(self, entropy_tau = 1e-5, munchausen_alpha = 1e-3, lo=-1) -> None:
         """
         Update policy using torche currently gatorchered
         rollout buffer (one gradient step over whole data).
@@ -37,7 +37,7 @@ class M_A2C(sb.A2C):
             policy_loss = -(advantages * log_prob).mean()
 
             next_state_entropy = entropy_tau * self.gamma * self.policy.evaluate_actions(torch.from_numpy(self._last_obs), torch.empty(0))[-1].detach()
-            munchausen_clipped = munchausen_alpha * log_prob.clip(min=lo, max=0).detach()
+            munchausen_clipped = munchausen_alpha * entropy_tau * log_prob.clip(min=lo, max=0).detach()
             target_values = rollout_data.returns + munchausen_clipped + next_state_entropy
 
             # Value loss using torche TD(gae_lambda) target
@@ -73,19 +73,20 @@ sb.common.utils.set_random_seed(1)
 
 model = M_A2C("MlpPolicy", env, verbose=0, 
         use_rms_prop = False, 
-        learning_rate = 5e-4,
-        n_steps=5, 
+        learning_rate = lambda x: 3e-3 * x + (1-x) * 1e-4,
+        n_steps=7, 
         gae_lambda = 0, 
+        # normalize_advantage=True,
         tensorboard_log=f'output/{env.spec.id}/', 
         max_grad_norm=1,
-        policy_kwargs={'net_arch': [256, 256]}
+        policy_kwargs={'net_arch': [256, 256]} # 'optimizer_class': torch.optim.Adadelta}
         )
 
 model.learn(total_timesteps=100000, tb_log_name = "M_A2C", log_interval = 5, )
-# model.save(f'output/{env.spec.id}-dqn')
+model.save(f'output/{env.spec.id}-m_a2c-1')
 
 print('Starting evaluation...')
-# model = DQN.load(f'output/{env.spec.id}-dqn')
+model = M_A2C.load(f'output/{env.spec.id}-m_a2c-1')
 
 G = []
 for _ in range(30):

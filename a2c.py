@@ -78,10 +78,10 @@ model = A2C("MlpPolicy", env, verbose=0,
         )
 
 model.learn(total_timesteps=100000, log_interval = 5)
-# model.save(f'output/{env.spec.id}-dqn')
+model.save(f'output/{env.spec.id}-a2c')
 
 print('Starting evaluation...')
-# model = DQN.load(f'output/{env.spec.id}-dqn')
+model = A2C.load(f'output/{env.spec.id}-a2c')
 
 G = []
 for _ in range(30):
