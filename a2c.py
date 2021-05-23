@@ -64,11 +64,11 @@ class A2C(sb.A2C):
         logger.record("train/value_loss", value_loss.item())
 
 print('Starting training...')
-env = make_vec_env(ENV, n_envs = 8)
+env = gym.make(ENV)
 env.seed(1)
 sb.common.utils.set_random_seed(1)
 
-model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.envs[0].spec.id}/', 
+model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
         # use_rms_prop = False, 
         # learning_rate = 5e-4,
         # n_steps=5, 
@@ -81,7 +81,7 @@ model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.envs[0].s
 # model.save(f'output/{env.envs[0].spec.id}-a2c')
 
 print('Starting evaluation...')
-model = A2C.load(f'output/{env.envs[0].spec.id}-a2c')
+model = A2C.load(f'output/{env.spec.id}-a2c')
 
 import pandas as pd
 
