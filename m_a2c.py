@@ -82,8 +82,10 @@ model = M_A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id
 print('Starting evaluation...')
 model = M_A2C.load(f'output/{env.spec.id}-m_a2c-1')
 
+import pandas as pd
+
 G = []
-for _ in range(30):
+for _ in range(100):
     obs = env.reset()
     # env.render()
     done = False
@@ -96,3 +98,4 @@ for _ in range(30):
     G.append(cur)
     print(cur)
 print(sum(G) / len(G))
+pd.Series(G).to_csv(f'data/{env.spec.id}/eval-ma2c.csv')

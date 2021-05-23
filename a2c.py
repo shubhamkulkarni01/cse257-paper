@@ -1,6 +1,7 @@
 import gym
 import stable_baselines3 as sb
 from stable_baselines3.common import logger
+from stable_baselines3.common.env_util import make_vec_env
 
 from utils import ENV
 
@@ -8,7 +9,7 @@ import torch
 from torch.nn import functional as F
 
 class A2C(sb.A2C):
-    def train(self, entropy_tau = 0.03, alpha = 0.9, lo=-1) -> None:
+    def train(self) -> None:
         """
         Update policy using torche currently gatorchered
         rollout buffer (one gradient step over whole data).
@@ -63,27 +64,29 @@ class A2C(sb.A2C):
         logger.record("train/value_loss", value_loss.item())
 
 print('Starting training...')
-env = gym.make(ENV)
+env = make_vec_env(ENV, n_envs = 8)
 env.seed(1)
 sb.common.utils.set_random_seed(1)
 
-model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
+model = A2C("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.envs[0].spec.id}/', 
         # use_rms_prop = False, 
         # learning_rate = 5e-4,
-        n_steps=8, 
+        # n_steps=5, 
         # gae_lambda = 0, 
         # max_grad_norm=1,
         # policy_kwargs={'net_arch': [256, 256]}
         )
 
-# model.learn(total_timesteps=100000, log_interval = 5)
-# model.save(f'output/{env.spec.id}-a2c')
+# model.learn(total_timesteps=1000000, log_interval = 5)
+# model.save(f'output/{env.envs[0].spec.id}-a2c')
 
 print('Starting evaluation...')
-model = A2C.load(f'output/{env.spec.id}-a2c')
+model = A2C.load(f'output/{env.envs[0].spec.id}-a2c')
+
+import pandas as pd
 
 G = []
-for _ in range(30):
+for _ in range(100):
     obs = env.reset()
     # env.render()
     done = False
@@ -96,3 +99,4 @@ for _ in range(30):
     G.append(cur)
     print(cur)
 print(sum(G) / len(G))
+pd.Series(G).to_csv(f'data/{env.spec.id}/eval-a2c.csv')

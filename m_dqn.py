@@ -81,14 +81,16 @@ model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id
             buffer_size = 50000, tau=1, batch_size=256, target_update_interval = 10000, max_grad_norm=1,
             train_freq=1, learning_starts=1000, policy_kwargs={'net_arch': [256, 256]})
 
-model.learn(total_timesteps=1000000, tb_log_name = "M_DQN", log_interval = 5)
-model.save(f'output/{env.spec.id}-mdqn')
+# model.learn(total_timesteps=1000000, tb_log_name = "M_DQN", log_interval = 5)
+# model.save(f'output/{env.spec.id}-mdqn')
 
 print('Starting evaluation...')
 model = M_DQN.load(f'output/{env.spec.id}-mdqn')
 
+import pandas as pd
+
 G = []
-for _ in range(30):
+for _ in range(100):
     obs = env.reset()
     # env.render()
     done = False
@@ -101,3 +103,4 @@ for _ in range(30):
     G.append(cur)
     print(cur)
 print(sum(G) / len(G))
+pd.Series(G).to_csv(f'data/{env.spec.id}/eval-mdqn.csv')
