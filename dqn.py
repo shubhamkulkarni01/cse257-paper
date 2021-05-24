@@ -61,9 +61,10 @@ model = DQN.load(f'output/{env.spec.id}-dqn')
 
 
 import pandas as pd
+from tqdm import trange
 
 G = []
-for _ in range(100):
+for _ in trange(100):
     obs = env.reset()
     # env.render()
     done = False
@@ -74,6 +75,5 @@ for _ in range(100):
         cur += r
         # env.render()
     G.append(cur)
-    print(cur)
-print(sum(G) / len(G))
-pd.Series(G).to_csv(f'data/{env.spec.id}/eval-dqn.csv')
+print(pd.Series(G).describe())
+# pd.Series(G).to_csv(f'data/{env.spec.id}/eval-dqn.csv')
