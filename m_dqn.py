@@ -66,7 +66,7 @@ class M_DQN(sb.DQN):
 
 print('Starting training...')
 env = gym.make(ENV)
-env.seed(0)
+env.seed(1)
 sb.common.utils.set_random_seed(1)
 
 # model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id}/', 
