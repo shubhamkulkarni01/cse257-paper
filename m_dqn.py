@@ -87,20 +87,34 @@ model = M_DQN("MlpPolicy", env, verbose=0, tensorboard_log=f'output/{env.spec.id
 print('Starting evaluation...')
 model = M_DQN.load(f'output/{env.spec.id}-mdqn')
 
-import pandas as pd
-from tqdm import trange
+obs = env.reset()
+env.render()
+done = False
+cur = 0
 
-G = []
-for _ in trange(100):
-    obs = env.reset()
-    # env.render()
-    done = False
-    cur = 0
-    while not done:
-        action, _states = model.predict(obs)
-        obs, r, done, info = env.step(action)
-        cur += r
-        # env.render()
-    G.append(cur)
-print(pd.Series(G).describe())
-# pd.Series(G).to_csv(f'data/{env.spec.id}/eval-mdqn.csv')
+_ = input()
+
+while not done:
+    action, _states = model.predict(obs)
+    obs, r, done, info = env.step(action)
+    cur += r
+    env.render()
+print(cur)
+
+# import pandas as pd
+# from tqdm import trange
+# 
+# G = []
+# for _ in trange(100):
+#     obs = env.reset()
+#     # env.render()
+#     done = False
+#     cur = 0
+#     while not done:
+#         action, _states = model.predict(obs)
+#         obs, r, done, info = env.step(action)
+#         cur += r
+#         # env.render()
+#     G.append(cur)
+# print(pd.Series(G).describe())
+# # pd.Series(G).to_csv(f'data/{env.spec.id}/eval-mdqn.csv')
